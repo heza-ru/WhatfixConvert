@@ -199,7 +199,7 @@ export default function Page() {
         return pool.map(t => t.title).join(' · ') || pf.file.name.replace(/\.(odarc|dkp)$/i, '');
       })();
       const id = crypto.randomUUID();
-      dispatch({ type: 'ADD', item: { id, name, status: 'converting', lastLog: '', progress: 8, printUrl: null, topics: null, error: null, _file: pf.file, _topicIds: topicIds } });
+      dispatch({ type: 'ADD', item: { id, name, status: 'converting', lastLog: '', progress: 8, printUrl: null, topics: null, error: null, exportingSeek: false, _file: pf.file, _topicIds: topicIds } });
       runConversion(id, pf.file, topicIds, name, autoFormats);
     }
   }, [pendingFiles, availTopics, selected, selectedFormats, clearPendingNoUndo, runConversion]);
@@ -232,6 +232,19 @@ export default function Page() {
     try { downloadBlob(await generatePptx(item.topics, item.name, await getLogoB64(), withTooltips), `${item.name}${withTooltips ? '' : '-clean'}.pptx`); }
     finally { dispatch({ type: 'PATCH', id: item.id, patch: { exportingPptx: false } }); }
   }, [downloadBlob]);
+
+  const handleSeek = useCallback(async (item) => {
+    if (!item.topics) return;
+    const { generateSeekInstructions, getLogoB64 } = await getConverter();
+    dispatch({ type: 'PATCH', id: item.id, patch: { exportingSeek: true } });
+    try {
+      const html = await generateSeekInstructions(item.topics, await getLogoB64());
+      const url  = createTrackedBlobUrl(new Blob([html], { type: 'text/html' }));
+      window.open(url, '_blank');
+    } finally {
+      dispatch({ type: 'PATCH', id: item.id, patch: { exportingSeek: false } });
+    }
+  }, [createTrackedBlobUrl]);
 
   const handleDelete = useCallback((id) => {
     const it = items.find(x => x.id === id);
@@ -449,6 +462,7 @@ export default function Page() {
                 onPrint={(wt) => window.open(wt ? item.printUrl : item.printUrlClean, '_blank')}
                 onDocx={(wt) => handleDocx(item, wt)}
                 onPptx={(wt) => handlePptx(item, wt)}
+                onSeek={() => handleSeek(item)}
                 onRetry={() => handleRetry(item)}
                 onDelete={() => handleDelete(item.id)}
               />
@@ -508,8 +522,8 @@ export default function Page() {
   );
 }
 
-const GuideCard = memo(function GuideCard({ item, onPreview, onPrint, onDocx, onPptx, onRetry, onDelete }) {
-  const { status, name, lastLog, progress, error, exportingDocx, exportingPptx } = item;
+const GuideCard = memo(function GuideCard({ item, onPreview, onPrint, onDocx, onPptx, onSeek, onRetry, onDelete }) {
+  const { status, name, lastLog, progress, error, exportingDocx, exportingPptx, exportingSeek } = item;
   const [withTooltips, setWithTooltips] = useState(true);
 
   return (
@@ -586,6 +600,14 @@ const GuideCard = memo(function GuideCard({ item, onPreview, onPrint, onDocx, on
             </button>
             <button className="btn-action primary" onClick={() => onPptx(withTooltips)} disabled={exportingPptx} aria-label="Export as PPTX" title="Download PowerPoint">
               {exportingPptx ? '…' : 'PPTX'}
+            </button>
+            <span className="guide-exports-divider" aria-hidden="true" />
+            <button className="btn-action btn-seek" onClick={onSeek} disabled={exportingSeek} aria-label="Open Seek instructions PDF" title="Open Seek instruction PDF — annotated screenshots with step-by-step actions">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" strokeWidth="1.3"/>
+                <path d="M8.5 8.5l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+              </svg>
+              {exportingSeek ? '…' : 'Seek'}
             </button>
           </div>
         </div>

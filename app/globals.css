@@ -438,6 +438,19 @@ html, body {
   gap: 6px;
   flex-wrap: wrap;
 }
+.guide-exports-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--border);
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+.btn-seek {
+  background: #f0f4ff;
+  color: #3b5bdb;
+  border-color: #c5d0fa;
+}
+.btn-seek:hover:not(:disabled) { background: #e0e9ff; border-color: #a5b4fb; }
 
 /* Action buttons */
 .btn-action {
