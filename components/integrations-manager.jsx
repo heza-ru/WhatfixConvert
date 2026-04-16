@@ -355,9 +355,9 @@ export function IntegrationsManager({ open, onClose }) {
             </div>
 
             {/* Tabs */}
-            <div className="px-6 pt-4 shrink-0">
-              <Tabs defaultValue="lms">
-                <TabsList className="w-full">
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden px-6 pt-4">
+              <Tabs defaultValue="lms" className="flex-1 min-h-0 flex flex-col">
+                <TabsList className="w-full shrink-0">
                   <TabsTrigger value="lms" className="flex-1">
                     LMS Platforms
                     <Badge variant="secondary" className="ml-1.5 text-[10px] h-4 px-1.5">
@@ -372,13 +372,13 @@ export function IntegrationsManager({ open, onClose }) {
                   </TabsTrigger>
                 </TabsList>
 
-                <ScrollArea className="h-[calc(100vh-280px)] mt-4 pr-1">
-                  <TabsContent value="lms" className="mt-0 space-y-3 pb-4">
+                <ScrollArea className="flex-1 mt-4">
+                  <TabsContent value="lms" className="mt-0 space-y-3 pb-6">
                     {lmsPlatforms.map(p => (
                       <PlatformCard key={p.id} platform={p} onUpdate={() => setTick(t => t + 1)} />
                     ))}
                   </TabsContent>
-                  <TabsContent value="kb" className="mt-0 space-y-3 pb-4">
+                  <TabsContent value="kb" className="mt-0 space-y-3 pb-6">
                     {kbPlatforms.map(p => (
                       <PlatformCard key={p.id} platform={p} onUpdate={() => setTick(t => t + 1)} />
                     ))}

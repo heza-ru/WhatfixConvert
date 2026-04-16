@@ -183,11 +183,12 @@ body {
   z-index: 0;
 }
 
-/* ─── Radix animate-in / out ─────────────────────────────────────────── */
-@keyframes radixIn  { from { opacity:0; transform:scale(0.96) translateY(4px); } to { opacity:1; transform:scale(1) translateY(0); } }
-@keyframes radixOut { from { opacity:1; } to { opacity:0; transform:scale(0.96); } }
-[data-state='open']   { animation: radixIn  0.2s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-[data-state='closed'] { animation: radixOut 0.15s ease forwards; }
+/* ─── Tooltip entrance animation ────────────────────────────────────── */
+@keyframes tooltipIn {
+  from { opacity: 0; transform: scale(0.92) translateY(5px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+.animate-tooltip-in { animation: tooltipIn 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
 /* ─── Shadows ─────────────────────────────────────────────────────────── */
 .shadow-glow-orange { box-shadow: 0 0 20px rgba(255,107,24,0.25), 0 0 60px rgba(255,107,24,0.08); }

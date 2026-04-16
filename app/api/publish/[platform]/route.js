@@ -10,7 +10,7 @@
 import { NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
-export const maxDuration = 60; // large files can take a moment
+export const maxDuration = 120; // large PPTX/SCORM packages can take 60-90 s
 
 // ── Entry point ───────────────────────────────────────────────────────────────
 export async function POST(request, { params }) {
@@ -29,6 +29,12 @@ export async function POST(request, { params }) {
 
   if (!file) {
     return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+  }
+
+  // Reject oversized payloads (250 MB matches client-side limit)
+  const MAX_BYTES = 250 * 1024 * 1024;
+  if (file.size > MAX_BYTES) {
+    return NextResponse.json({ error: 'File exceeds 250 MB limit' }, { status: 413 });
   }
 
   // Collect all credential fields from the FormData

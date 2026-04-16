@@ -5,3 +5,5 @@ out/
 uploads/
 output/
 db.json
+*.odarc
+*.dkp
