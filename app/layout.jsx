@@ -1,4 +1,7 @@
 import './globals.css';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'], display: 'swap', variable: '--font-inter' });
 
 const BASE_URL = 'https://whatfxconvert.vercel.app';
 
@@ -51,14 +54,14 @@ export default function RootLayout({ children }) {
   };
 
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body>{children}</body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
