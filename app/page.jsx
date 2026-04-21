@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect, memo, useReducer } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Settings2, Download, RefreshCw, Search, ChevronDown, X, CheckCircle2, AlertCircle, UploadCloud, Copy, Check, Play, Pencil, GripVertical, HelpCircle, Link, Palette, Clock, FileText, Layers, Eye, ExternalLink } from 'lucide-react';
+import { Upload, Settings2, Download, RefreshCw, Search, ChevronDown, X, CheckCircle2, AlertCircle, UploadCloud, Copy, Check, Play, Pencil, GripVertical, HelpCircle, Link, Palette, Clock, FileText, Layers, Eye, ExternalLink, Minimize2 } from 'lucide-react';
 
 import ErrorBoundary from './error-boundary';
 import { PUBLISH_PLATFORMS } from '../lib/lms-connectors';
@@ -313,6 +313,12 @@ export default function Page() {
     if (!item.topics) return; const { generateSeekInstructions, getLogoB64 } = await getConverter();
     dispatch({ type: 'PATCH', id: item.id, patch: { exportingSeek: true } });
     try { window.open(createTrackedBlobUrl(new Blob([await generateSeekInstructions(item.topics, await getLogoB64())], { type: 'text/html' })), '_blank'); } finally { dispatch({ type: 'PATCH', id: item.id, patch: { exportingSeek: false } }); }
+  }, [createTrackedBlobUrl]);
+  const handleFlowChart = useCallback(async (item, useImages) => {
+    if (!item.topics) return;
+    const { generateFlowchartHtml } = await getConverter();
+    const html = generateFlowchartHtml(item.topics, item.name, useImages);
+    window.open(createTrackedBlobUrl(new Blob([html], { type: 'text/html' })), '_blank');
   }, [createTrackedBlobUrl]);
   const handleScorm  = useCallback(async (item) => {
     if (!item.topics) return;
@@ -805,6 +811,7 @@ export default function Page() {
                         onPptx={(wt) => handlePptx(item, wt)}
                         onSeek={() => handleSeek(item)}
                         onScorm={() => handleScorm(item)}
+                        onFlowChart={(useImages) => handleFlowChart(item, useImages)}
                         onPublish={(platformId, format, cfg) => handlePublish(item, platformId, format, cfg)}
                         onRetry={() => handleRetry(item)}
                         onDelete={() => handleDelete(item.id)}
@@ -824,8 +831,9 @@ export default function Page() {
 }
 
 // ─── Guide Card ──────────────────────────────────────────────────────
-const GuideCard = memo(function GuideCard({ item, onPreview, onEdit, onPrint, onDocx, onPptx, onSeek, onScorm, onPublish, onRetry, onDelete, onRename }) {
+const GuideCard = memo(function GuideCard({ item, onPreview, onEdit, onPrint, onDocx, onPptx, onSeek, onScorm, onFlowChart, onPublish, onRetry, onDelete, onRename }) {
   const { status, name, lastLog, progress, error, exportingDocx, exportingPptx, exportingSeek, publishedTo, printUrlClean, thumbnail } = item;
+  const isDkpFlow = item.topics?.some(t => t.isDkpFlow);
   const [withTooltips, setWithTooltips] = useState(true);
   const [copied, setCopied]             = useState(false);
   const [linkCopied, setLinkCopied]     = useState(false);
@@ -1075,6 +1083,19 @@ const GuideCard = memo(function GuideCard({ item, onPreview, onEdit, onPrint, on
                     <Search size={11} /> {exportingSeek ? '…' : 'Seek'}
                   </Button>
                 </AnimTooltip>
+                {isDkpFlow && (<>
+                  <Separator orientation="vertical" className="h-5" />
+                  <AnimTooltip content="Open a printable flow chart tree showing slide titles and navigation paths — save as PDF via browser print" side="top">
+                    <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={() => onFlowChart(false)}>
+                      <Layers size={11} /> Flow Chart
+                    </Button>
+                  </AnimTooltip>
+                  <AnimTooltip content="Open a printable flow chart tree with slide screenshot thumbnails — save as PDF via browser print" side="top">
+                    <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5" onClick={() => onFlowChart(true)}>
+                      <Eye size={11} /> Flow Chart (Images)
+                    </Button>
+                  </AnimTooltip>
+                </>)}
                 <Separator orientation="vertical" className="h-5" />
                 <AnimTooltip content="Push to an LMS or knowledge base, or download as a SCORM package" side="top">
                   <Button
@@ -1324,7 +1345,7 @@ function PreviewModal({ html, name, onClose }) {
           <span className="text-sm font-medium text-foreground flex-1 truncate">{name}</span>
           <div className="flex gap-1">
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleFullscreen}>
-              {isFullscreen ? <X size={13} /> : <ExternalLink size={13} />}
+              {isFullscreen ? <Minimize2 size={13} /> : <ExternalLink size={13} />}
             </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
               <X size={14} />
@@ -1332,7 +1353,7 @@ function PreviewModal({ html, name, onClose }) {
           </div>
         </div>
         {blobUrl
-          ? <iframe src={blobUrl} className="flex-1 w-full border-0" title={`Preview: ${name}`} sandbox="allow-scripts allow-same-origin" />
+          ? <iframe src={blobUrl} className="flex-1 w-full border-0" title={`Preview: ${name}`} sandbox="allow-scripts allow-same-origin allow-popups" />
           : <div className="flex-1 flex items-center justify-center gap-3 text-sm text-muted-foreground"><span className="spinner" />Loading preview…</div>
         }
       </motion.div>
