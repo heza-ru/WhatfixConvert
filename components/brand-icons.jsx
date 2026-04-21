@@ -1,17 +1,4 @@
-// Icons sourced from:
-//   - Simple Icons CDN (cdn.simpleicons.org) — confirmed slugs only
-//   - Google Favicon service (sz=128) — for all others
-
-// Only slugs confirmed to exist in the Simple Icons catalog
-const SI_SLUGS = {
-  confluence:     'confluence',
-  notion:         'notion',
-  zendesk:        'zendesk',
-  successfactors: 'sap',
-};
-
-// All others use Google's favicon service (reliable, no slug guessing)
-const FAVICON_DOMAINS = {
+const BRANDFETCH_DOMAINS = {
   whatfix:        'whatfix.com',
   workday:        'workday.com',
   linkedin:       'linkedin.com',
@@ -20,9 +7,13 @@ const FAVICON_DOMAINS = {
   '360learning':  '360learning.com',
   absorb:         'absorblms.com',
   degreed:        'degreed.com',
-  sharepoint:     'sharepoint.com',
+  sharepoint:     'microsoft.com',
   servicenow:     'servicenow.com',
   guru:           'getguru.com',
+  confluence:     'atlassian.com',
+  notion:         'notion.so',
+  zendesk:        'zendesk.com',
+  successfactors: 'successfactors.com',
 };
 
 const BRAND_COLORS = {
@@ -46,40 +37,20 @@ const BRAND_COLORS = {
 export function IntegrationIcon({ platformId, size = 32 }) {
   const color = BRAND_COLORS[platformId] ?? '#6b7280';
   const label = platformId?.[0]?.toUpperCase() ?? '?';
+  const domain = BRANDFETCH_DOMAINS[platformId];
 
-  // Simple Icons: SVG with transparent bg — pad slightly so the icon breathes
-  if (SI_SLUGS[platformId]) {
-    const pad = Math.round(size * 0.18);
-    return (
-      <div
-        style={{ width: size, height: size, padding: pad }}
-        className="rounded-xl bg-white border border-[#e5e7eb] flex items-center justify-center shrink-0 overflow-hidden"
-      >
-        <img
-          src={`https://cdn.simpleicons.org/${SI_SLUGS[platformId]}`}
-          alt={platformId}
-          width={size - pad * 2}
-          height={size - pad * 2}
-          style={{ objectFit: 'contain', display: 'block' }}
-          onError={e => replaceWithInitial(e.currentTarget, color, label, size)}
-        />
-      </div>
-    );
-  }
-
-  // Favicons: rendered as-is at full size — they already contain their own background
-  if (FAVICON_DOMAINS[platformId]) {
+  if (domain) {
     return (
       <div
         style={{ width: size, height: size }}
-        className="rounded-xl shrink-0 overflow-hidden"
+        className="rounded-xl shrink-0 overflow-hidden bg-white border border-[#e5e7eb] flex items-center justify-center"
       >
         <img
-          src={`https://www.google.com/s2/favicons?domain=${FAVICON_DOMAINS[platformId]}&sz=128`}
+          src={`https://cdn.brandfetch.io/${domain}/w/128/h/128/icon`}
           alt={platformId}
           width={size}
           height={size}
-          style={{ objectFit: 'cover', display: 'block', width: '100%', height: '100%' }}
+          style={{ objectFit: 'contain', display: 'block', width: '100%', height: '100%' }}
           onError={e => replaceWithInitial(e.currentTarget, color, label, size)}
         />
       </div>

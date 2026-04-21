@@ -37,7 +37,7 @@ const nextConfig = {
               scriptSrc,
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' data: https://fonts.gstatic.com",
-              "img-src 'self' data: blob:",           // blob: needed for in-browser doc previews
+              "img-src 'self' data: blob: https://cdn.brandfetch.io",
               "frame-src 'self' blob:",               // blob: needed for preview iframe (blob URL)
               "connect-src 'self'",                   // API calls go to same origin only
               "frame-ancestors 'none'",
